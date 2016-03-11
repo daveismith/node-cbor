@@ -253,10 +253,16 @@ module.exports = class Encoder extends stream.Transform
     if typeof f == 'function'
       return f.call(obj, this)
 
+    opts = if (this.opts) then this.opts else {}
+    console.log opts
+    numericKeys = if (opts.numericKeys) then opts.numericKeys else false
     keys = Object.keys obj
     @_pushInt keys.length, MT.MAP
     for k in keys
-      @_pushAny k
+      if (numericKeys) 
+         @_pushNumber parseInt(k)
+      else
+         @_pushAny k
       @_pushAny obj[k]
 
   # @nodoc
@@ -281,6 +287,23 @@ module.exports = class Encoder extends stream.Transform
   # @param objs... [Object+] the objects to encode
   @encode: (objs...) ->
     enc = new Encoder
+    bs = new NoFilter
+    enc.pipe bs
+    for o in objs
+      switch
+        when typeof(o) == 'undefined' then enc._pushUndefined()
+        when (o == null) then enc._pushObject(null)
+        else enc.write o
+    enc.end()
+    bs.read()
+
+  # Encode One or more JavaScript objects, and return a Buffer containing the
+  # CBOR bytes. First argument is an options object that affects generation
+  # @param opts [Object] the options to use during encoding
+  # @param objs... [Object+] the objects to encode
+  @encodeOpts: (opts, objs...) ->
+    enc = new Encoder
+    enc.opts = opts
     bs = new NoFilter
     enc.pipe bs
     for o in objs

@@ -17,3 +17,4 @@ exports.decodeAll = exports.Decoder.decodeAll
 exports.decodeFirst = exports.Decoder.decodeFirst
 exports.diagnose = exports.Diagnose.diagnose
 exports.encode = exports.Encoder.encode
+exports.encodeOpts = exports.Encoder.encodeOpts
