@@ -254,7 +254,6 @@ module.exports = class Encoder extends stream.Transform
       return f.call(obj, this)
 
     opts = if (this.opts) then this.opts else {}
-    console.log opts
     numericKeys = if (opts.numericKeys) then opts.numericKeys else false
     keys = Object.keys obj
     @_pushInt keys.length, MT.MAP
