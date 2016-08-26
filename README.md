@@ -38,8 +38,13 @@ var encoded = cbor.encode(true); // returns <Buffer f5>
 cbor.decodeFirst(encoded, function(error, obj) {
   // error != null if there was an error
   // obj is the unpacked object
-  assert.ok(obj[0] === true);
+  assert.ok(obj === true);
 });
+
+// Use integers as keys?
+var m = new Map();
+m.set(1, 2);
+encoded = cbor.encode(m); // <Buffer a1 01 02>
 ```
 
 Allows streaming as well:
@@ -60,32 +65,34 @@ var d2 = new cbor.Decoder({input: '00', encoding: 'hex'});
 d.on('data', function(obj){
   console.log(obj);
 });
-d2.start(); // needed when you don't use the stream interface
 ```
+
+There is also support for synchronous decodes:
+
+```
+try {
+  console.log(cbor.decodeFirstSync('02')); // 2
+  console.log(cbor.decodeAllSync('0202')); // [2, 2]
+} catch (e) {
+  // throws on invalid input
+}
+```
+
+The sync encoding and decoding are exported as a
+[leveldb encoding](https://github.com/Level/levelup#custom_encodings), as
+`cbor.leveldb`.
 
 Developers
 ----------
 
-For the moment, you'll need to manually install istanbul, nodeunit, and grunt-cli:
+Get a list of build steps with `npm run`.  I use `npm run dev`, which rebuilds,
+runs tests, and refreshes a browser window with coverage metrics every time I
+save a `.coffee` file.  If you don't want to run the fuzz tests every time, set
+a `NO_GARBAGE` environment variable:
 
 ```
-$ npm install -g grunt-cli nodeunit istanbul
-$ grunt
-Running "coffee:compile" (coffee) task
-
-Running "nodeunit:all" (nodeunit) task
-Testing decoder.test.....OK
-Testing diagnose.test...OK
-Testing encoder.test.......OK
-Testing evented.test....OK
-Testing simple.test.OK
-Testing tagged.test..OK
-Testing utils.test.......OK
->> 459 assertions passed (129ms)
-
-Done, without errors.
+env NO_GARBAGE=1 npm run dev
 ```
-
 
 [![Build Status](https://api.travis-ci.org/hildjj/node-cbor.png)](https://travis-ci.org/hildjj/node-cbor)
 [![Coverage Status](https://coveralls.io/repos/hildjj/node-cbor/badge.png?branch=master)](https://coveralls.io/r/hildjj/node-cbor?branch=master)

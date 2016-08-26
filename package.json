@@ -1,6 +1,6 @@
 {
   "name": "cbor",
-  "version": "1.0.1",
+  "version": "1.0.6",
   "description": "Encode and parse data in the Concise Binary Object Representation (CBOR) data format (RFC7049).",
   "main": "./lib/cbor.js",
   "repository": {
@@ -19,9 +19,24 @@
     "json2cbor": "./bin/json2cbor"
   },
   "scripts": {
-    "test": "grunt test",
-    "ci": "grunt ci",
-    "prepublish": "grunt prepublish"
+    "clean": "rm -rf coverage lib docs/doc man/*",
+    "lint": "coffeelint src test",
+    "coffee": "coffee -cm -o lib/ src",
+    "coverage": "nyc npm test",
+    "precoverage": "npm run coffee -s",
+    "coveragehtml": "nyc report -r html",
+    "precoveragehtml": "npm run coverage",
+    "test": "nodeunit test/*.test.js",
+    "pretest": "npm run coffee -s",
+    "codo": "codo src",
+    "man": "mkdir -p man; for f in man_src/*.md; do b=`basename $f`; marked-man $f -o man/${b%.md}.1; gzip -9f man/${b%.md}.1; done",
+    "doc": "npm-run-all --silent man codo",
+    "prepublish": "npm-run-all --silent coffee doc",
+    "watch": "watch 'npm run coveragehtml' src/ test/",
+    "release": "npm version patch && git push --follow-tags && npm publish",
+    "live": "live-server --port=4002 --ignorePattern='(js|css|png)$' coverage",
+    "dev": "npm-run-all -p --silent watch live",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [
     "coap",
@@ -37,31 +52,27 @@
     "Artyom Yagilev <github@scorpi.org> (http://scorpi.org/)"
   ],
   "devDependencies": {
-    "async": "^1.4",
-    "coffeelint": "^1.11",
-    "garbage": "0.0",
-    "grunt": "~0.4",
-    "grunt-codo": "^0.2",
-    "grunt-coffeelint": "0.0",
-    "grunt-contrib-clean": "^0.6",
-    "grunt-contrib-coffee": "~0.13",
-    "grunt-contrib-nodeunit": "~0.4",
-    "grunt-contrib-watch": "^0.6",
-    "grunt-coveralls": "~1.0",
-    "grunt-express": "^1.4",
-    "grunt-markedman": "^1.0",
-    "grunt-release": "^0.13",
-    "grunt-shell": "~1.1",
-    "jit-grunt": "^0.9",
-    "source-map-support": "^0.3"
+    "async": "latest",
+    "codo": "latest",
+    "coffeelint": "latest",
+    "coffee-script": "latest",
+    "coveralls": "latest",
+    "garbage": "latest",
+    "nyc": "latest",
+    "live-server": "latest",
+    "marked-man": "latest",
+    "nodeunit": "latest",
+    "npm-run-all": "latest",
+    "source-map-support": "latest",
+    "watch": "latest"
   },
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "bignumber.js": "~2.0",
-    "commander": "^2.8",
+    "bignumber.js": "~2.4",
+    "commander": "^2.9",
     "json-text-sequence": "^0.1",
-    "nofilter": "^0.0"
+    "nofilter": "^0.0.3"
   },
   "engines": {
     "node": ">=4.1.0"
