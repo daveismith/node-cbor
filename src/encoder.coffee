@@ -258,7 +258,7 @@ module.exports = class Encoder extends stream.Transform
     keys = Object.keys obj
     @_pushInt keys.length, MT.MAP
     for k in keys
-      if (numericKeys) 
+      if (numericKeys && !isNaN(k)) 
          @_pushNumber parseInt(k)
       else
          @_pushAny k
